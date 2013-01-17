@@ -161,3 +161,5 @@ Another thing to keep in mind if you're considering Ragel is that, since it gene
 These are just some of our favorite ways to solve the regular expression explosion problem, but there are lots of other options out there. [Parsing things](http://en.wikipedia.org/wiki/Parsing) is a whole academic field, and there are a huge number of tools for automating it. (We use a few more of these ourselves.) The world is big, and you've probably heard of a lot of stuff I haven't.
 
 Have I mentioned that we're hiring? If this sort of thing appeals to you, we have no shortage of interesting work. [Take our programming challenge!](http://challenge.greplin.com/)
+
+EOF
