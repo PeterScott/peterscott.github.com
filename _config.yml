@@ -17,11 +17,6 @@ author :
   github : PeterScott
   twitter : sketerpot
 
-# Use redcarpet for GitHub-flavored markdown
-markdown: redcarpet2
-redcarpet:
-  extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "strikethrough", "superscript"]
-
 # The production_url is only used when full-domain names are needed
 # such as sitemap.txt 
 # Most places will/should use BASE_PATH to make the urls

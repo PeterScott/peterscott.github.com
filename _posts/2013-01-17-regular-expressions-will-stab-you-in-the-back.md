@@ -7,31 +7,35 @@ tags: []
 ---
 {% include JB/setup %}
 
+{:c: lang=c}
+{:javascript: lang=javascript}
+{:python: lang=python}
+
 Regular expressions are super-useful, but if you're processing enough unpredictable text, and your regular expressions aren't *very* carefully written, one day they will turn around and betray you -- specifically, they will slam your CPU usage up to 100% and clog up everything until you wake up and fix it, invariably in the middle of the night. This has happened to us, several times, and it really sucks. We have to process text that may be nightmarishly malformed or actively malicious, so ignoring regexplosions isn't an option for us. Instead, we've come up with a few practical ways to prevent them without too much effort.
 
 ## Why do regular expressions go berserk?
 
 Most regular expression matchers (including the ones in Python and Java and Pearl) are *backtracking:* whenever there are multiple possibilities, they try one, and if it fails, try the next one until either something matches, or all the possibilities fail. For example, suppose you try to match the regular expression `/foo|bar/` against the strings "foo", "bar", and "baz". Here are the steps that a backtracking regular expression engine could take:
 
-```javascript
+{% highlight javascript %}
 /foo|bar/.match("foo");   // Looks for "foo", and finds it. Match!
 /foo|bar/.match("bar");   // Looks for "foo", but doesn't find it. Looks for "bar", and finds it. Match!
 /foo|bar/.match("baz");   // Looks for "foo", but doesn't find it. Looks for "bar", doesn't find it. No match.
-```
+{% endhighlight %}
 
 Sounds reasonable, right? This kind of regular expression matching engine is easy to write, usually very fast, and can support all sorts of nice features like backreferences. There's a reason why this kind of algorithm is popular! But things are not always so nice. Let's look at another, seemingly innocent, example:
 
-```javascript
+{% highlight javascript %}
 /a?a/.match("a");
-```
+{% endhighlight %}
 
 This looks for an optional 'a', and finds it. Then it looks for the required 'a', but it's at the end of the string already, so it backtracks to the beginning, decides that the optional 'a' is skipped, looks for the required 'a', finds it, and declares a match. Success!
 
 In other words, a backtracking matcher considers the possibilities "don't skip" and then "skip" for the `/a?/` part of the regex.  So far, no horrible explosions.
 
-```javascript
+{% highlight javascript %}
 /a?a?aa/.match("aa");
-```
+{% endhighlight %}
 
 This considers the following possibilities for the two optional 'a' characters:
 
@@ -63,7 +67,7 @@ First, get the RE2 library. If you're on a Mac with [brew](http://mxcl.github.co
 
 Next, just use it. RE2 uses essentially the same syntax as everything else, so this part is simple. Let's look for valid Skype usernames in some text, using re and RE2, and compare the code:
 
-```python
+{% highlight python %}
 >>> import re, re2
 >>> r = re.compile(r'([a-zA-Z][a-zA-Z0-9_,.-]{4,20}[a-zA-Z0-9_-])')
 >>> r2 = re2.compile(r'([a-zA-Z][a-zA-Z0-9_,.-]{4,20}[a-zA-Z0-9_-])')
@@ -72,7 +76,7 @@ Next, just use it. RE2 uses essentially the same syntax as everything else, so t
 ['truculent.cactuar']
 >>> r2.findall(doc)
 ['truculent.cactuar']
-```
+{% endhighlight %}
 
 Same regular expression, same API, same results. Easy. Do this, and your servers won't hang in the middle of the night because of a regular expression rebellion. We use this a lot, and it works great.
 
@@ -80,11 +84,11 @@ Same regular expression, same API, same results. Easy. Do this, and your servers
 
 The most heavyweight option I want to mention, but potentially the fastest and most flexible, is to abandon conventional regular expression engines entirely, and instead use [Ragel](http://www.complang.org/ragel/) for some of your more complex text-processing code. Ragel bills itself as a "state machine compiler"; you can think of it as a parser generator that lets you build regular expressions that execute arbitrary code when the text has matched to certain points. To get a sense for how this works, consider how you might implement capturing groups if you were building a regular expression engine. Let's say you want to extract the numbers in strings like "In 28 days". The natural regular expression way to do this would be to put a capturing group around the number:
 
-```python
+{% highlight python %}
 >>> import re
 >>> re.match(r'In (\d+) days', 'In 28 days').group(1)
 '28'
-```
+{% endhighlight %}
 
 You could imagine a regular expression matcher which calls a hypothetical `startGroup(pos)` function when it has matched everything up to a '(' character, and then calls an `endGroup(pos)` function when it has successfully matched up to a ')' character. If the regular expression as a whole matches successfully, then you just look at those positions recorded by the calls to `startGroup()` and `endGroup()`, and the text between them will be the matched text for that group. In our example above, the execution if the regular expression matcher would be something like
 
@@ -99,7 +103,7 @@ Ragel takes this basic concept and runs with it, letting you embed any code you 
 
 Let's try matching "In \d+ days" with Ragel, using the approach mentioned above. Ragel assumes the existence of some local variables that you must provide, in this case start and end pointers `p` and `pe`, and a state variable `cs` to keep track of the current state of the parser. You also need an `eof` pointer to the end of the file; in this case, that's the same as the end of the current buffer, but if you make a streaming parser, there could be a difference. This example tries to do things the easiest way:
 
-```c++
+{% highlight c++ %}
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -141,7 +145,7 @@ int main(void) {
   getMyNumber("54 days from now");    /* No match. */
   return 0;
 }
-```
+{% endhighlight %}
 
 To compile this, you need to have Ragel generate C code, and compile that.
 
@@ -161,5 +165,3 @@ Another thing to keep in mind if you're considering Ragel is that, since it gene
 These are just some of our favorite ways to solve the regular expression explosion problem, but there are lots of other options out there. [Parsing things](http://en.wikipedia.org/wiki/Parsing) is a whole academic field, and there are a huge number of tools for automating it. (We use a few more of these ourselves.) The world is big, and you've probably heard of a lot of stuff I haven't.
 
 Have I mentioned that we're hiring? If this sort of thing appeals to you, we have no shortage of interesting work. [Take our programming challenge!](http://challenge.greplin.com/)
-
-EOF
