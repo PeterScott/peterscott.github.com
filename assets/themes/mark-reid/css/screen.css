@@ -357,11 +357,12 @@ pre:hover {
         overflow: visible;
 }
 code {
-        font-size: 1.3em;
+        font-size: 1em;
         background-color: #f7f7ff;
         line-height: 1.4em;
 }
 pre > code {
+        font-size: 1.3em;
         background-color: transparent;
 }
 /* @end */
