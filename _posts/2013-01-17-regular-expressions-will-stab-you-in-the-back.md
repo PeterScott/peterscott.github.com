@@ -4,12 +4,9 @@ title: "Regular expressions will stab you in the back"
 description: ""
 category:
 tags: []
+author: Peter Scott
 ---
 {% include JB/setup %}
-
-{:c: lang=c}
-{:javascript: lang=javascript}
-{:python: lang=python}
 
 Regular expressions are super-useful, but if you're processing enough unpredictable text, and your regular expressions aren't *very* carefully written, one day they will turn around and betray you -- specifically, they will slam your CPU usage up to 100% and clog up everything until you wake up and fix it, invariably in the middle of the night. This has happened to us, several times, and it really sucks. We have to process text that may be nightmarishly malformed or actively malicious, so ignoring regexplosions isn't an option for us. Instead, we've come up with a few practical ways to prevent them without too much effort.
 
