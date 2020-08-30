@@ -1,0 +1,30 @@
+<html> <head>
+<title>Make Generator, yay!</title>
+<style>
+table.maze {
+  border-collapse: collapse;
+}
+table.maze tr {
+  height: 13px;
+}
+table.maze td {
+  width: 10px;
+  border-width: 1px !important;
+}
+</style>
+</head>
+<body>
+
+<div>
+  <b>Click one: </b>
+  <a href="javascript:show_rdfs()">RDFS</a>
+  <a href="javascript:show_kruskal()">Kruskal</a>
+  <a href="javascript:show_hybrid()">Hybrid</a>
+  <a href="javascript:show_hallways()">Hallways</a>
+</div>
+
+<div id="generated-maze"></div>
+
+
+<script type="text/javascript" src="maze.js"></script>
+</body> </html>
